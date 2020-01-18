@@ -23,4 +23,32 @@ configuration. Here's an example configuration.
   client = NetClientCombine(session)
 #+END_SRC
 
-** Requests
+*** Retaining request references
+Keep a collection of references to requests to keep them alive.
+#+BEGIN_SRC swift
+  private var disposables = Set<AnyCancellable>()
+#+END_SRC
+
+*** Requests
+
+**** GET
+#+BEGIN_SRC swift
+  client.send(.get, to: url, headers: HTTPHeaders.defaults())
+    .receive(on: DispatchQueue.main)
+    .sink(receiveCompletion: { [weak self] completion in
+              guard let self = self else { return }
+              switch completion {
+              case .failure(let error):
+                  print(error)
+              case .finished:
+                  break
+              }
+          },
+          receiveValue: { [weak self] data in
+              guard let self = self else { return }
+              // We have the data
+          })
+    .store(in: &disposables)
+#+END_SRC
+
+**** POST
