@@ -33,7 +33,7 @@ Keep a collection of references to requests to keep them alive.
 
 **** GET
 #+BEGIN_SRC swift
-  client.send(.get, to: url, headers: HTTPHeaders.defaults())
+  client.get(url)
     .receive(on: DispatchQueue.main)
     .sink(receiveCompletion: { [weak self] completion in
               guard let self = self else { return }
@@ -52,3 +52,23 @@ Keep a collection of references to requests to keep them alive.
 #+END_SRC
 
 **** POST
+#+BEGIN_SRC swift
+  client.post(url, headers: headers, requestBody: reqBody, response: ResponseBody.self)
+    .receive(on: DispatchQueue.main)
+    .sink(receiveCompletion: { [weak self] completion in
+              guard let self = self else { return }
+              switch completion {
+              case .finished:
+                  break
+              case .failure(let error):
+                  print(error)
+              }
+          }, receiveValue: { [weak self] value in
+                 guard let self = self else { return }
+                 // we have data
+             })
+    .store(in: &disposables)
+#+END_SRC
+
+**** Low data GET
+This is not tested to be working yet.

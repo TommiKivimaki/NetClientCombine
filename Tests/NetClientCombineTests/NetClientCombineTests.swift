@@ -56,7 +56,8 @@ final class NetClientCombineTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Response received")
     let url = URL(string: "https://campingfinland.net")!
     
-    client.send(.get, to: url, headers: HTTPHeaders.defaults())
+//    client.send(.get, to: url, headers: HTTPHeaders.defaults())
+    client.get(url)
       .receive(on: DispatchQueue.main)
       .sink(receiveCompletion: { [weak self] completion in
         guard let self = self else { return }
@@ -138,8 +139,7 @@ final class NetClientCombineTests: XCTestCase {
     let reqBody = RequestBody(firstname: "James", lastname: "Bond")
     
     /// TODO: Use the convenience method when available
-//    client.post(url, headers: headers, requestBody: reqBody, response: ResponseBody.self)
-    client.send(.post, to: url, headers: headers, requestBody: reqBody, response: ResponseBody.self)
+    client.post(url, headers: headers, requestBody: reqBody, response: ResponseBody.self)
       .receive(on: DispatchQueue.main)
       .sink(receiveCompletion: { [weak self] completion in
         guard let self = self else { return }
