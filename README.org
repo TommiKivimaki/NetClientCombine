@@ -1,4 +1,26 @@
 #+STARTUP: showall
-#+TITLE: NetClientCombine
+#+TITLE: Network client based on Combine framework
 
-** Network client based on Combine framework
+** Supported platforms
+- iSO13+
+- macOS 10.15+
+- Mac Catalyst 13.0+
+- tvOS 13.0+
+- watchOS 6.0+
+
+** Usage
+
+*** Configuration
+
+Use URLSession to configure the client or go with the client's default
+configuration. Here's an example configuration.
+#+BEGIN_SRC swift
+  let lowDataConfiguration = URLSessionConfiguration.default
+  lowDataConfiguration.allowsConstrainedNetworkAccess = true
+  lowDataConfiguration.allowsExpensiveNetworkAccess = false
+  lowDataConfiguration.allowsCellularAccess = false
+  let session = URLSession(configuration: lowDataConfiguration)
+  client = NetClientCombine(session)
+#+END_SRC
+
+** Requests
