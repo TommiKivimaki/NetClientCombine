@@ -1,9 +1,4 @@
-//
-//  File.swift
-//  
-//
-//  Created by Tommi Kivimäki on 17.1.2020.
-//
+// Copyright © 18.1.2020 Tommi Kivimäki.
 
 import Combine
 import Foundation

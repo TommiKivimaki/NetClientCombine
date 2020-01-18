@@ -1,9 +1,4 @@
-//
-//  NetClientError.swift
-//  
-//
-//  Created by Tommi Kivimäki on 22.10.2019.
-//
+// Copyright © 18.1.2020 Tommi Kivimäki.
 
 enum NetClientError: Error {
   case invalidServerResponse
