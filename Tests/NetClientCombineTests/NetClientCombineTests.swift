@@ -56,7 +56,6 @@ final class NetClientCombineTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Response received")
     let url = URL(string: "https://campingfinland.net")!
     
-//    client.send(.get, to: url, headers: HTTPHeaders.defaults())
     client.get(url)
       .receive(on: DispatchQueue.main)
       .sink(receiveCompletion: { [weak self] completion in
@@ -90,9 +89,7 @@ final class NetClientCombineTests: XCTestCase {
     
     let url = URL(string: "https://swapi.co/api/people/1/")!
     
-      // TODO: Use the get method when you get the Clienting helpers in place
-//    client.get(url, response: People.self)
-    client.send(to: url, response: People.self)
+    client.get(url, response: People.self)
       .receive(on: DispatchQueue.main)
       .sink(receiveCompletion: { [weak self] completion in
         guard let self = self else { return }
@@ -109,8 +106,7 @@ final class NetClientCombineTests: XCTestCase {
         expectation.fulfill()
       })
       .store(in: &disposables)
-      
-    
+          
     wait(for: [expectation], timeout: 10)
   }
   
@@ -138,7 +134,6 @@ final class NetClientCombineTests: XCTestCase {
     
     let reqBody = RequestBody(firstname: "James", lastname: "Bond")
     
-    /// TODO: Use the convenience method when available
     client.post(url, headers: headers, requestBody: reqBody, response: ResponseBody.self)
       .receive(on: DispatchQueue.main)
       .sink(receiveCompletion: { [weak self] completion in
