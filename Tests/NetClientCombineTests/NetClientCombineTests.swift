@@ -26,7 +26,7 @@ final class NetClientCombineTests: XCTestCase {
   }
   
   //TODO: Low data config is not tested yet (clientLowData)
-
+  
   func testAdaptiveSendGetRequest() {
     let expectation = XCTestExpectation(description: "Response received")
     
@@ -42,12 +42,15 @@ final class NetClientCombineTests: XCTestCase {
         case .finished:
           break
         }
-        }, receiveValue: { [weak self] data in
-          guard let self = self else { return }
-          expectation.fulfill()
+        },
+            receiveValue: { [weak self] value in
+              guard let self = self else { return }
+              let string = String(data: value, encoding: .utf8)
+              print(string)
+              expectation.fulfill()
       })
       .store(in: &disposables)
-
+    
     wait(for: [expectation], timeout: 10)
   }
   
@@ -100,13 +103,14 @@ final class NetClientCombineTests: XCTestCase {
           print(error)
           XCTFail()
         }
-        }, receiveValue: { [weak self] people in
-        guard let self = self else { return }
-        print(people)
-        expectation.fulfill()
+        },
+            receiveValue: { [weak self] people in
+              guard let self = self else { return }
+              print(people)
+              expectation.fulfill()
       })
       .store(in: &disposables)
-          
+    
     wait(for: [expectation], timeout: 10)
   }
   
@@ -145,11 +149,38 @@ final class NetClientCombineTests: XCTestCase {
           print(error)
           XCTFail()
         }
-      }, receiveValue: { [weak self] value in
+        },
+            receiveValue: { [weak self] value in
+              guard let self = self else { return }
+              print(value)
+              expectation.fulfill()
+      })
+      .store(in: &disposables)
+    
+    wait(for: [expectation], timeout: 10)
+  }
+  
+  func testSendDeleteRequest() {
+    let expectation = XCTestExpectation(description: "Response received")
+    let url = URL(string: "https://httpbin.org/delete")!
+    
+    client.delete(url)
+      .receive(on: DispatchQueue.main)
+      .sink(receiveCompletion: { [weak self] completion in
         guard let self = self else { return }
-        print(value)
-        XCTAssertEqual(value.json, reqBody)
-        expectation.fulfill()
+        switch completion {
+        case .failure(let error):
+          print(error)
+          XCTFail()
+        case .finished:
+          break
+        }
+        },
+            receiveValue: { [weak self] value in
+              guard let self = self else { return }
+              print(value)
+              XCTAssertNotNil(value)
+              expectation.fulfill()
       })
       .store(in: &disposables)
     
@@ -189,18 +220,18 @@ final class NetClientCombineTests: XCTestCase {
           print(error)
           XCTFail()
         }
-      }, receiveValue: { [weak self] value in
-        guard let self = self else { return }
-        print(value)
-        XCTAssertEqual(value.headers.accept, "application/json")
-        XCTAssertEqual(value.headers.contentType, "application/json")
-        expectation.fulfill()
+        }, receiveValue: { [weak self] value in
+          guard let self = self else { return }
+          print(value)
+          XCTAssertEqual(value.headers.accept, "application/json")
+          XCTAssertEqual(value.headers.contentType, "application/json")
+          expectation.fulfill()
       })
       .store(in: &disposables)
     
     wait(for: [expectation], timeout: 10)
   }
-
+  
   
   static var allTests = [
     ("testAdaptiveSendGetRequest", testAdaptiveSendGetRequest),

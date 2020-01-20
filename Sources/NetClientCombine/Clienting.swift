@@ -35,4 +35,7 @@ extension Clienting {
     return self.send(.post, to: url, headers: headers, requestBody: requestBody, response: response)
   }
   
+  public func delete(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
+    return self.send(.delete, to: url, headers: headers)
+  }
 }
