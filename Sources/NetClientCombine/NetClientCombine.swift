@@ -6,7 +6,7 @@ import Foundation
 
 
 
-struct NetClientCombine {
+struct NetClientCombine: Clienting {
 
   static var publisher: ClientPublishable = ClientPublisher()
   

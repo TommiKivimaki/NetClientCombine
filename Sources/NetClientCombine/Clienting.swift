@@ -5,16 +5,16 @@ import Foundation
 
 
 protocol Clienting {
-  func send(_ method: HTTPMethod,
+  static func send(_ method: HTTPMethod,
             to url: URL,
             headers: HTTPHeaders) -> AnyPublisher<Data, Error>
   
-  func send<Response>(_ method: HTTPMethod,
+  static func send<Response>(_ method: HTTPMethod,
                       to url: URL,
                       headers: HTTPHeaders,
                       response decodeTo: Response.Type) -> AnyPublisher<Response, Error> where Response: Decodable
   
-  func send<RequestBody, Response>(_ method: HTTPMethod,
+  static func send<RequestBody, Response>(_ method: HTTPMethod,
                          to url: URL, headers: HTTPHeaders,
                          requestBody: RequestBody,
                          response decodeTo: Response.Type) -> AnyPublisher<Response, Error> where RequestBody: Encodable, Response: Decodable
@@ -23,19 +23,19 @@ protocol Clienting {
 
 // Convenience methods
 extension Clienting {
-  public func get(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
-    return self.send(.get, to: url, headers: headers)
+  static func get(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
+    return Self.send(.get, to: url, headers: headers)
   }
   
-  public func get<Response>(_ url: URL, headers: HTTPHeaders = [:], response: Response.Type) -> AnyPublisher<Response, Error> where Response: Decodable {
-    return self.send(.get, to: url, headers: headers, response: response)
+  static func get<Response>(_ url: URL, headers: HTTPHeaders = [:], response: Response.Type) -> AnyPublisher<Response, Error> where Response: Decodable {
+    return Self.send(.get, to: url, headers: headers, response: response)
   }
   
-  public func post<RequestBody, Response>(_ url: URL, headers: HTTPHeaders = [:], requestBody: RequestBody, response: Response.Type) -> AnyPublisher<Response, Error> where RequestBody: Encodable, Response: Decodable {
-    return self.send(.post, to: url, headers: headers, requestBody: requestBody, response: response)
+  static func post<RequestBody, Response>(_ url: URL, headers: HTTPHeaders = [:], requestBody: RequestBody, response: Response.Type) -> AnyPublisher<Response, Error> where RequestBody: Encodable, Response: Decodable {
+    return Self.send(.post, to: url, headers: headers, requestBody: requestBody, response: response)
   }
   
-  public func delete(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
-    return self.send(.delete, to: url, headers: headers)
+  static func delete(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
+    return Self.send(.delete, to: url, headers: headers)
   }
 }

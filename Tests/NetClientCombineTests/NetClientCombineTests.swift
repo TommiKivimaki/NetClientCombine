@@ -66,8 +66,6 @@ final class NetClientCombineTests: XCTestCase {
   
   
   func testSendGetRequestUsingURLRequest() {
-    let expectation = XCTestExpectation(description: "Response received")
-    
     let getURL = URL(string: "http://localhost:8080/get")
     URLProtocolStub.testURLs = [getURL: Data(MockedResponseData.getResponse.utf8)]
     let getRequest = URLRequest(url: getURL!)
@@ -82,14 +80,13 @@ final class NetClientCombineTests: XCTestCase {
   }
   
   func testSendGetRequestUsingURL() {
-    let expectation = XCTestExpectation(description: "Response received")
-    
     let getURL = URL(string: "http://localhost:8080/get")
     URLProtocolStub.testURLs = [getURL: Data(MockedResponseData.getResponse.utf8)]
     
     NetClientCombine.publisher = testPublisher
     URLProtocolStub.response = mockedResponses.validResponse
-    let publisher = NetClientCombine.send(to: getURL!)
+//    let publisher = NetClientCombine.send(to: getURL!)
+    let publisher = NetClientCombine.get(getURL!)
     
     let validation = validateResponse(publisher: publisher)
     wait(for: validation.expectations, timeout: testTimeout)
@@ -97,8 +94,6 @@ final class NetClientCombineTests: XCTestCase {
   }
   
   func testGetRequestAndDecodeResponse() {
-    let expectation = XCTestExpectation(description: "Response received")
-
     struct Resp: Decodable, Equatable {
       var message: String
     }
@@ -110,7 +105,8 @@ final class NetClientCombineTests: XCTestCase {
     
     NetClientCombine.publisher = testPublisher
     URLProtocolStub.response = mockedResponses.validResponse
-    let publisher = NetClientCombine.send(.get, to: getURL!, response: Resp.self)
+//    let publisher = NetClientCombine.send(.get, to: getURL!, response: Resp.self)
+    let publisher = NetClientCombine.get(getURL!, response: Resp.self)
 
     let validation =  validateResponse(publisher: publisher, expectedResponse: expectedResponseData)
     wait(for: validation.expectations, timeout: testTimeout)
@@ -118,8 +114,6 @@ final class NetClientCombineTests: XCTestCase {
   }
   
   func testSendPostRequestWithBodyAndDecodeResponse() {
-    let expectation = XCTestExpectation(description: "Response received")
-
     let postURL = URL(string: "http://localhost:8080/post")
     let headers: [String: String] = [
       "Content-Type": "application/json",
@@ -141,21 +135,22 @@ final class NetClientCombineTests: XCTestCase {
     let reqBody = RequestBody(firstname: "James")
     let expectedResponseData = Resp(message: "POST response")
     
-    let publisher = NetClientCombine.send(.post, to: postURL!, headers: headers, requestBody: reqBody, response: Resp.self)
+//    let publisher = NetClientCombine.send(.post, to: postURL!, headers: headers, requestBody: reqBody, response: Resp.self)
+    let publisher = NetClientCombine.post(postURL!, headers: headers, requestBody: reqBody, response: Resp.self)
     let validation = validateResponse(publisher: publisher, expectedResponse: expectedResponseData)
     wait(for: validation.expectations, timeout: testTimeout)
     validation.cancellable?.cancel()
   }
   
   func testSendDeleteRequest() {
-    let expectation = XCTestExpectation(description: "Response received")
     let deleteURL = URL(string: "http://localhost:8080/delete")
     
     URLProtocolStub.testURLs = [deleteURL: Data(MockedResponseData.deleteResponse.utf8)]
     URLProtocolStub.response = mockedResponses.validResponse
     NetClientCombine.publisher = testPublisher
     
-    let publisher = NetClientCombine.send(.delete, to: deleteURL!)
+//    let publisher = NetClientCombine.send(.delete, to: deleteURL!)
+    let publisher = NetClientCombine.delete(deleteURL!)
     let validation = validateResponse(publisher: publisher)
     wait(for: validation.expectations, timeout: testTimeout)
     validation.cancellable?.cancel()
