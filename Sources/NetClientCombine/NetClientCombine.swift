@@ -32,6 +32,7 @@ struct NetClientCombine: Clienting {
     // Let's try regular access first
     var request = URLRequest(url: regularURL)
     request.allowsConstrainedNetworkAccess = false
+    var lowRequest = URLRequest(url: lowDataURL)
     
     return publisher.dataTaskPublisher(for: request)
       .tryCatch { error -> URLSession.DataTaskPublisher in
@@ -39,7 +40,6 @@ struct NetClientCombine: Clienting {
           throw NetClientError.invalidServerResponse
         }
         // No network for regular access. Let's try low data request
-        let lowRequest = URLRequest(url: lowDataURL)
         return publisher.dataTaskPublisher(for: lowRequest)
     }
     .tryMap { data, response -> Data in

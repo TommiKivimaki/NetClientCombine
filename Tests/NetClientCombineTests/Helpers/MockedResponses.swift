@@ -26,6 +26,8 @@ class MockedResponses {
   let networkError = NSError(domain: "NSURLErrorDomain",
                              code: -1004, //kCFURLErrorCannotConnectToHost
     userInfo: nil)
+  
+  let networkConstrainedError = URLError.NetworkUnavailableReason.constrained
 }
 
 
@@ -41,5 +43,13 @@ struct MockedResponseData {
   
   static let deleteResponse = """
           { "message": "DELETE response" }
+  """
+  
+  static let regularDataResponse = """
+          { "message": "REGULAR DATA response takes more bytes." }
+  """
+  
+  static let lowDataResponse = """
+          { "message": "LOW DATA response" }
   """
 }

@@ -5,6 +5,7 @@ import Combine
 final class NetClientCombineTests: XCTestCase {
 
   var testPublisher: ClientPublisher!
+  var lowDataPublisher: ClientPublisher!
   var mockedResponses: MockedResponses!
   let testTimeout: TimeInterval = 1
   
@@ -20,12 +21,16 @@ final class NetClientCombineTests: XCTestCase {
     let mockSession = URLSession(configuration: config)
     testPublisher = ClientPublisher(session: mockSession)
     
-    self.mockedResponses = MockedResponses()
+    // Create a low data publisher
+    let lowDataConfig = URLSessionConfiguration.ephemeral
+    lowDataConfig.allowsConstrainedNetworkAccess = true
+    lowDataConfig.allowsExpensiveNetworkAccess = false
+    lowDataConfig.allowsCellularAccess = false
+    lowDataConfig.protocolClasses = [URLProtocolStub.self]
+    let lowDataSession = URLSession(configuration: lowDataConfig)
+    lowDataPublisher = ClientPublisher(session: lowDataSession)
     
-//    let lowDataConfiguration = URLSessionConfiguration.default
-//    lowDataConfiguration.allowsConstrainedNetworkAccess = true
-//    lowDataConfiguration.allowsExpensiveNetworkAccess = false
-//    lowDataConfiguration.allowsCellularAccess = false
+    self.mockedResponses = MockedResponses()
   }
   
   override func tearDown() {
@@ -37,31 +42,27 @@ final class NetClientCombineTests: XCTestCase {
   
   // TODO: Implement the test
   func testAdaptiveSendGetRequest() {
-//    let expectation = XCTestExpectation(description: "Response received")
-//
-//    let url = URL(string: "http://localhost/get")!
-//
-//    client.adaptiveSend(regularURL: url, lowDataURL: url)
-//      .receive(on: DispatchQueue.main)
-//      .sink(receiveCompletion: { [weak self] value in
-//        guard let self = self else { return }
-//        switch value {
-//        case .failure:
-//          print("FAILED")
-//        case .finished:
-//          break
-//        }
-//        },
-//            receiveValue: { [weak self] value in
-//              guard let self = self else { return }
-//              let string = String(data: value, encoding: .utf8)
-//              XCTAssertNotNil(string!)
-//              print(string!)
-//              expectation.fulfill()
-//      })
-//      .store(in: &disposables)
-//
-//    wait(for: [expectation], timeout: 10)
+    
+    // Setup URLPrototolcStub for this test
+    let lowDataURL = URL(string: "http://localhost:8080/lowdata")
+    let regularDataURL = URL(string: "http://localhost:8080/regulardata")
+    URLProtocolStub.testURLs = [lowDataURL: Data(MockedResponseData.lowDataResponse.utf8)]
+    URLProtocolStub.testURLs = [regularDataURL: Data(MockedResponseData.regularDataResponse.utf8)]
+    URLProtocolStub.response = mockedResponses.validResponse
+
+    // Test with a regular test publisher
+    NetClientCombine.publisher = testPublisher
+    let publisher = NetClientCombine.adaptiveSend(regularURL: regularDataURL!, lowDataURL: lowDataURL!)
+    let validation = validateResponse(publisher: publisher)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
+    
+    // Test with a publisher configured for low data
+    NetClientCombine.publisher = lowDataPublisher
+    let lowPublisher = NetClientCombine.adaptiveSend(regularURL: regularDataURL!, lowDataURL: lowDataURL!)
+    let lowValidation = validateResponse(publisher: lowPublisher)
+    wait(for: lowValidation.expectations, timeout: testTimeout)
+    lowValidation.cancellable?.cancel()
   }
   
   
@@ -156,51 +157,6 @@ final class NetClientCombineTests: XCTestCase {
     validation.cancellable?.cancel()
   }
   
-  func testDefaultHeaders() {
-//    let expectation = XCTestExpectation(description: "Response received")
-//
-//    let url = URL(string: "http://localhost/headers")!
-//
-//    struct HeaderDictionary: Decodable, Equatable {
-//      let accept: String
-//      let contentType: String
-//      let userAgent: String // Decoding also User-Agent to see the response. It's not part of the HTTPHeaders.defaults()
-//
-//      enum CodingKeys: String, CodingKey {
-//        case accept = "Accept"
-//        case contentType = "Content-Type"
-//        case userAgent = "User-Agent"
-//      }
-//    }
-//
-//    struct ResponseBody: Decodable {
-//      let headers: HeaderDictionary
-//    }
-//
-//
-//    client.get(url, headers: HTTPHeaders.defaults(), response: ResponseBody.self)
-//      .receive(on: RunLoop.main)
-//      .sink(receiveCompletion: { [weak self] completion in
-//        guard let self = self else { return }
-//        switch completion {
-//        case .finished:
-//          break
-//        case .failure(let error):
-//          print(error)
-//          XCTFail()
-//        }
-//        }, receiveValue: { [weak self] value in
-//          guard let self = self else { return }
-//          print(value)
-//          XCTAssertEqual(value.headers.accept, "application/json")
-//          XCTAssertEqual(value.headers.contentType, "application/json")
-//          expectation.fulfill()
-//      })
-//      .store(in: &disposables)
-//
-//    wait(for: [expectation], timeout: 10)
-  }
-  
   
   static var allTests = [
     ("testAdaptiveSendGetRequest", testAdaptiveSendGetRequest),
@@ -208,7 +164,6 @@ final class NetClientCombineTests: XCTestCase {
     ("testSendGetRequestUsingURL", testSendGetRequestUsingURL),
     ("testGetRequestAndDecodeResponse", testGetRequestAndDecodeResponse),
     ("testSendPostRequestWithBodyAndDecodeResponse", testSendPostRequestWithBodyAndDecodeResponse),
-    ("testSendDeleteRequest", testSendDeleteRequest),
-    ("testDefaultHeaders", testDefaultHeaders)
+    ("testSendDeleteRequest", testSendDeleteRequest)
   ]
 }
