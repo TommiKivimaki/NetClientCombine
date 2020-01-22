@@ -6,7 +6,7 @@ final class NetClientCombineTests: XCTestCase {
 
   var testPublisher: ClientPublisher!
   var mockedResponses: MockedResponses!
-//  let testTimeout: TimeInterval = 1
+  let testTimeout: TimeInterval = 1
   
   
   // Store references to request so they stay alive until they complete
@@ -74,34 +74,14 @@ final class NetClientCombineTests: XCTestCase {
     
     NetClientCombine.publisher = testPublisher
     URLProtocolStub.response = mockedResponses.validResponse
-//    let publisher = NetClientCombine.send(getRequest)
-  
-    NetClientCombine.send(getRequest)
-      .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        guard let self = self else { return }
-        switch completion {
-        case .failure(let error):
-          print(error)
-          XCTFail()
-        case .finished:
-          break
-        }
-        },
-            receiveValue: { [weak self] value in
-              guard let self = self else { return }
-              let string = String(data: value, encoding: .utf8)
-              XCTAssertNotNil(string!)
-              XCTAssertEqual(string!, MockedResponseData.getResponse)
-              print(string!)
-              expectation.fulfill()
-      })
-      .store(in: &disposables)
+    let publisher = NetClientCombine.send(getRequest)
     
-    wait(for: [expectation], timeout: 10)
+    let validation = validateResponse(publisher: publisher)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
   }
   
-  func testSendGetRequest() {
+  func testSendGetRequestUsingURL() {
     let expectation = XCTestExpectation(description: "Response received")
     
     let getURL = URL(string: "http://localhost:8080/get")
@@ -109,31 +89,11 @@ final class NetClientCombineTests: XCTestCase {
     
     NetClientCombine.publisher = testPublisher
     URLProtocolStub.response = mockedResponses.validResponse
-    //    let publisher = NetClientCombine.send(getRequest)
+    let publisher = NetClientCombine.send(to: getURL!)
     
-    NetClientCombine.send(to: getURL!)
-      .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        guard let self = self else { return }
-        switch completion {
-        case .failure(let error):
-          print(error)
-          XCTFail()
-        case .finished:
-          break
-        }
-        },
-            receiveValue: { [weak self] value in
-              guard let self = self else { return }
-              let string = String(data: value, encoding: .utf8)
-              XCTAssertNotNil(string!)
-              XCTAssertEqual(string!, MockedResponseData.getResponse)
-              print(string!)
-              expectation.fulfill()
-      })
-      .store(in: &disposables)
-    
-    wait(for: [expectation], timeout: 10)
+    let validation = validateResponse(publisher: publisher)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
   }
   
   func testGetRequestAndDecodeResponse() {
@@ -150,29 +110,11 @@ final class NetClientCombineTests: XCTestCase {
     
     NetClientCombine.publisher = testPublisher
     URLProtocolStub.response = mockedResponses.validResponse
-    //    let publisher = NetClientCombine.send(getRequest)
+    let publisher = NetClientCombine.send(.get, to: getURL!, response: Resp.self)
 
-    NetClientCombine.send(.get, to: getURL!, response: Resp.self)
-      .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        guard let self = self else { return }
-        switch completion {
-        case .finished:
-          break
-        case .failure(let error):
-          print(error)
-          XCTFail()
-        }
-        },
-            receiveValue: { [weak self] value in
-              guard let self = self else { return }
-              XCTAssertEqual(value, expectedResponseData)
-              print(value)
-              expectation.fulfill()
-      })
-      .store(in: &disposables)
-
-    wait(for: [expectation], timeout: 10)
+    let validation =  validateResponse(publisher: publisher, expectedResponse: expectedResponseData)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
   }
   
   func testSendPostRequestWithBodyAndDecodeResponse() {
@@ -199,58 +141,24 @@ final class NetClientCombineTests: XCTestCase {
     let reqBody = RequestBody(firstname: "James")
     let expectedResponseData = Resp(message: "POST response")
     
-    NetClientCombine.send(.post, to: postURL!, headers: headers, requestBody: reqBody, response: Resp.self)
-      .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        guard let self = self else { return }
-        switch completion {
-        case .finished:
-          break
-        case .failure(let error):
-          print(error)
-          XCTFail()
-        }
-        },
-            receiveValue: { [weak self] value in
-              guard let self = self else { return }
-              XCTAssertEqual(value, expectedResponseData)
-              print(value)
-              expectation.fulfill()
-      })
-      .store(in: &disposables)
-
-    wait(for: [expectation], timeout: 10)
+    let publisher = NetClientCombine.send(.post, to: postURL!, headers: headers, requestBody: reqBody, response: Resp.self)
+    let validation = validateResponse(publisher: publisher, expectedResponse: expectedResponseData)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
   }
   
   func testSendDeleteRequest() {
     let expectation = XCTestExpectation(description: "Response received")
-    let deleteURL = URL(string: "http://localhost/delete")
+    let deleteURL = URL(string: "http://localhost:8080/delete")
     
     URLProtocolStub.testURLs = [deleteURL: Data(MockedResponseData.deleteResponse.utf8)]
     URLProtocolStub.response = mockedResponses.validResponse
     NetClientCombine.publisher = testPublisher
     
-    NetClientCombine.send(.delete, to: deleteURL!)
-      .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        guard let self = self else { return }
-        switch completion {
-        case .failure(let error):
-          print(error)
-          XCTFail()
-        case .finished:
-          break
-        }
-        },
-            receiveValue: { [weak self] value in
-              guard let self = self else { return }
-              XCTAssertNotNil(value)
-              print(value)
-              expectation.fulfill()
-      })
-      .store(in: &disposables)
-
-    wait(for: [expectation], timeout: 10)
+    let publisher = NetClientCombine.send(.delete, to: deleteURL!)
+    let validation = validateResponse(publisher: publisher)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
   }
   
   func testDefaultHeaders() {
@@ -302,7 +210,7 @@ final class NetClientCombineTests: XCTestCase {
   static var allTests = [
     ("testAdaptiveSendGetRequest", testAdaptiveSendGetRequest),
     ("testSendGetRequestUsingURLRequest", testSendGetRequestUsingURLRequest),
-    ("testSendGetRequest", testSendGetRequest),
+    ("testSendGetRequestUsingURL", testSendGetRequestUsingURL),
     ("testGetRequestAndDecodeResponse", testGetRequestAndDecodeResponse),
     ("testSendPostRequestWithBodyAndDecodeResponse", testSendPostRequestWithBodyAndDecodeResponse),
     ("testSendDeleteRequest", testSendDeleteRequest),

@@ -4,17 +4,15 @@ import Foundation
 
 // Responses
 class MockedResponses {
-  let authorization = "ZW1haWw6cGFzc3dvcmQ="
+  let validResponse = HTTPURLResponse(url: URL(string: "http://localhost:8080")!,
+                                      statusCode: 200,
+                                      httpVersion: nil,
+                                      headerFields: nil)
   
   let invalidResponse = URLResponse(url: URL(string: "http://localhost:8080")!,
                                     mimeType: nil,
                                     expectedContentLength: 0,
                                     textEncodingName: nil)
-  
-  let validResponse = HTTPURLResponse(url: URL(string: "http://localhost:8080")!,
-                                      statusCode: 200,
-                                      httpVersion: nil,
-                                      headerFields: nil)
   
   let invalidResponse300 = HTTPURLResponse(url: URL(string: "http://localhost:8080")!,
                                            statusCode: 300,
