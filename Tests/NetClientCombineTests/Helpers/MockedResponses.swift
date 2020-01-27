@@ -26,8 +26,12 @@ class MockedResponses {
   let networkError = NSError(domain: "NSURLErrorDomain",
                              code: -1004, //kCFURLErrorCannotConnectToHost
     userInfo: nil)
+
   
-  let networkConstrainedError = URLError.NetworkUnavailableReason.constrained
+  let methodNotAllowed = HTTPURLResponse(url: URL(string: "http://localhost:8080")!,
+                               statusCode: 405,
+                               httpVersion: nil,
+                               headerFields: nil)
 }
 
 

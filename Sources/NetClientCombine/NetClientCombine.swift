@@ -28,16 +28,17 @@ struct NetClientCombine: Clienting {
   }
   
   
+  
   static func adaptiveSend(regularURL: URL, lowDataURL: URL) -> AnyPublisher<Data, Error> {
     // Let's try regular access first
     var request = URLRequest(url: regularURL)
     request.allowsConstrainedNetworkAccess = false
-    var lowRequest = URLRequest(url: lowDataURL)
+    let lowRequest = URLRequest(url: lowDataURL)
     
     return publisher.dataTaskPublisher(for: request)
       .tryCatch { error -> URLSession.DataTaskPublisher in
         guard error.networkUnavailableReason == .constrained else {
-          throw NetClientError.invalidServerResponse
+          throw NetClientError.networkUnavailableReasonIsConstrained
         }
         // No network for regular access. Let's try low data request
         return publisher.dataTaskPublisher(for: lowRequest)

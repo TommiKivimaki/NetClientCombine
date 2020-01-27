@@ -4,5 +4,6 @@ enum NetClientError: Error {
   case invalidServerResponse
   case failedToEncodeBody
   case failedToDecodeResponse
+  case networkUnavailableReasonIsConstrained
   case unknown
 }

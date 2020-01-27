@@ -38,7 +38,32 @@ final class NetClientCombineTests: XCTestCase {
     mockedResponses = nil
   }
   
+  func testAdaptiveSendRegularDataAllowed() {
+    let lowDataURL = URL(string: "http://localhost:8080/lowdata")
+    let regularDataURL = URL(string: "http://localhost:8080/regulardata")
+    URLProtocolStub.testURLs = [regularDataURL: Data(MockedResponseData.regularDataResponse.utf8)]
+    URLProtocolStub.response = mockedResponses.validResponse
+    
+    NetClientCombine.publisher = testPublisher
+    let publisher = NetClientCombine.adaptiveSend(regularURL: regularDataURL!, lowDataURL: lowDataURL!)
+    let validation = validateResponse(publisher: publisher)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
+  }
   
+  func testAdaptiveSendRegularDataNotAllowed() {
+    let lowDataURL = URL(string: "http://localhost:8080/lowdata")
+    let regularDataURL = URL(string: "http://localhost:8080/regulardata")
+    URLProtocolStub.testURLs = [lowDataURL: Data(MockedResponseData.lowDataResponse.utf8)]
+    URLProtocolStub.testURLs = [regularDataURL: Data(MockedResponseData.regularDataResponse.utf8)]
+    URLProtocolStub.response = mockedResponses.methodNotAllowed
+    
+    NetClientCombine.publisher = testPublisher
+    let publisher = NetClientCombine.adaptiveSend(regularURL: regularDataURL!, lowDataURL: lowDataURL!)
+    let validation = validateInvalidResponse(publisher: publisher)
+    wait(for: validation.expectations, timeout: testTimeout)
+    validation.cancellable?.cancel()
+  }
   
   // TODO: Implement the test
   func testAdaptiveSendGetRequest() {
@@ -48,7 +73,7 @@ final class NetClientCombineTests: XCTestCase {
     let regularDataURL = URL(string: "http://localhost:8080/regulardata")
     URLProtocolStub.testURLs = [lowDataURL: Data(MockedResponseData.lowDataResponse.utf8)]
     URLProtocolStub.testURLs = [regularDataURL: Data(MockedResponseData.regularDataResponse.utf8)]
-    URLProtocolStub.response = mockedResponses.validResponse
+    URLProtocolStub.response = mockedResponses.methodNotAllowed
 
     // Test with a regular test publisher
     NetClientCombine.publisher = testPublisher

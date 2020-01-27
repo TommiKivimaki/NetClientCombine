@@ -61,32 +61,32 @@ func validateResponse<T:Publisher, E:Equatable>(publisher: T?, expectedResponse:
           cancellable: cancellable)
 }
 
-//
-//  func evalInvalidResponseTest<T:Publisher>(publisher: T?) -> (expectations:[XCTestExpectation], cancellable: AnyCancellable?) {
-//         XCTAssertNotNil(publisher)
-//         
-//         let expectationFinished = expectation(description: "Invalid.finished")
-//         expectationFinished.isInverted = true
-//         let expectationReceive = expectation(description: "Invalid.receiveValue")
-//         expectationReceive.isInverted = true
-//         let expectationFailure = expectation(description: "Invalid.failure")
-//         
-//         let cancellable = publisher?.sink (receiveCompletion: { (completion) in
-//             switch completion {
-//             case .failure(let error):
-//                 print("--TEST FULFILLED--")
-//                 print(error.localizedDescription)
-//                 print("------")
-//                 expectationFailure.fulfill()
-//             case .finished:
-//                 expectationFinished.fulfill()
-//             }
-//         }, receiveValue: { response in
-//             XCTAssertNotNil(response)
-//             print(response)
-//             expectationReceive.fulfill()
-//         })
-//          return (expectations: [expectationFinished, expectationReceive, expectationFailure],
-//                        cancellable: cancellable)
-//     }
+
+  func validateInvalidResponse<T:Publisher>(publisher: T?) -> (expectations:[XCTestExpectation], cancellable: AnyCancellable?) {
+         XCTAssertNotNil(publisher)
+         
+         let expectationFinished = XCTestExpectation(description: "Invalid.finished")
+         expectationFinished.isInverted = true
+         let expectationReceive = XCTestExpectation(description: "Invalid.receiveValue")
+         expectationReceive.isInverted = true
+         let expectationFailure = XCTestExpectation(description: "Invalid.failure")
+         
+         let cancellable = publisher?.sink (receiveCompletion: { (completion) in
+             switch completion {
+             case .failure(let error):
+                 print("--TEST FULFILLED--")
+                 print(error.localizedDescription)
+                 print("------")
+                 expectationFailure.fulfill()
+             case .finished:
+                 expectationFinished.fulfill()
+             }
+         }, receiveValue: { response in
+             XCTAssertNotNil(response)
+             print(response)
+             expectationReceive.fulfill()
+         })
+          return (expectations: [expectationFinished, expectationReceive, expectationFailure],
+                        cancellable: cancellable)
+     }
 
