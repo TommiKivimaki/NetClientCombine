@@ -10,7 +10,7 @@ public struct NetClientCombine: Clienting {
 
   static var publisher: ClientPublishable = ClientPublisher()
   
-  
+  public init() {}
   
   /// publisher powering the requests
 //  var publisher = ClientPublisher()
