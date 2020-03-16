@@ -15,7 +15,7 @@ struct NetClientCombine: Clienting {
   /// publisher powering the requests
 //  var publisher = ClientPublisher()
   
-  static func send(_ request: URLRequest) -> AnyPublisher<Data, Error> {
+  static public func send(_ request: URLRequest) -> AnyPublisher<Data, Error> {
     return publisher.dataTaskPublisher(for: request)
       .tryMap { data, response -> Data in
         guard let httpResponse = response as? HTTPURLResponse,
@@ -60,7 +60,7 @@ struct NetClientCombine: Clienting {
   /// - Parameter url: Endpoint
   /// - Parameter headers: HTTP headers
   /// - Returns: Raw response data
-  static func send(_ method: HTTPMethod = .get,
+  static public func send(_ method: HTTPMethod = .get,
                    to url: URL,
                    headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
     var request = URLRequest(url: url)
@@ -85,7 +85,7 @@ struct NetClientCombine: Clienting {
    /// - Parameter headers: HTTP headers
    /// - Parameter decodeTo: Response will be decoded to this Model type
    /// - Returns: Decoded response
-   static func send<Response>(_ method: HTTPMethod = .get,
+   static public func send<Response>(_ method: HTTPMethod = .get,
                               to url: URL,
                               headers: HTTPHeaders = [:],
                               response decodeTo: Response.Type) -> AnyPublisher<Response, Error> where Response: Decodable {
@@ -126,7 +126,7 @@ struct NetClientCombine: Clienting {
    /// - Parameter headers: HTTP headers
    /// - Parameter requestBody: HTTP request body
    /// - Parameter decodeTo: Response will be decoded to this Model type
-   static func send<RequestBody, Response>(_ method: HTTPMethod = .post,
+   static public func send<RequestBody, Response>(_ method: HTTPMethod = .post,
                           to url: URL, headers: HTTPHeaders = [:],
                           requestBody: RequestBody,
                           response decodeTo: Response.Type) -> AnyPublisher<Response, Error> where RequestBody: Encodable, Response: Decodable {

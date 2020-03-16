@@ -23,19 +23,19 @@ protocol Clienting {
 
 // Convenience methods
 extension Clienting {
-  static func get(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
+  static public func get(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
     return Self.send(.get, to: url, headers: headers)
   }
   
-  static func get<Response>(_ url: URL, headers: HTTPHeaders = [:], response: Response.Type) -> AnyPublisher<Response, Error> where Response: Decodable {
+  static public func get<Response>(_ url: URL, headers: HTTPHeaders = [:], response: Response.Type) -> AnyPublisher<Response, Error> where Response: Decodable {
     return Self.send(.get, to: url, headers: headers, response: response)
   }
   
-  static func post<RequestBody, Response>(_ url: URL, headers: HTTPHeaders = [:], requestBody: RequestBody, response: Response.Type) -> AnyPublisher<Response, Error> where RequestBody: Encodable, Response: Decodable {
+  static public func post<RequestBody, Response>(_ url: URL, headers: HTTPHeaders = [:], requestBody: RequestBody, response: Response.Type) -> AnyPublisher<Response, Error> where RequestBody: Encodable, Response: Decodable {
     return Self.send(.post, to: url, headers: headers, requestBody: requestBody, response: response)
   }
   
-  static func delete(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
+  static public func delete(_ url: URL, headers: HTTPHeaders = [:]) -> AnyPublisher<Data, Error> {
     return Self.send(.delete, to: url, headers: headers)
   }
 }
