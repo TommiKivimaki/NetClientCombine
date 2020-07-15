@@ -19,7 +19,7 @@ public struct NetClientCombine: Clienting {
     return publisher.dataTaskPublisher(for: request)
       .tryMap { data, response -> Data in
         guard let httpResponse = response as? HTTPURLResponse,
-          httpResponse.statusCode == 200 else {
+          200...299 ~= httpResponse.statusCode else {
             throw NetClientError.invalidServerResponse
         }
         return data
@@ -45,7 +45,7 @@ public struct NetClientCombine: Clienting {
     }
     .tryMap { data, response -> Data in
       guard let httpResponse = response as? HTTPURLResponse,
-        httpResponse.statusCode == 200 else {
+        200...299 ~= httpResponse.statusCode else {
           throw NetClientError.invalidServerResponse
       }
       return data
@@ -70,7 +70,7 @@ public struct NetClientCombine: Clienting {
     return publisher.dataTaskPublisher(for: request)
       .tryMap { data, response -> Data in
         guard let httpResponse = response as? HTTPURLResponse,
-          httpResponse.statusCode == 200 else {
+          200...299 ~= httpResponse.statusCode else {
             throw NetClientError.invalidServerResponse
         }
         return data
@@ -100,7 +100,7 @@ public struct NetClientCombine: Clienting {
       return self.publisher.dataTaskPublisher(for: request)
          .tryMap { data, response -> Data in
            guard let httpResponse = response as? HTTPURLResponse,
-             httpResponse.statusCode == 200 else {
+             200...299 ~= httpResponse.statusCode else {
                throw NetClientError.invalidServerResponse
            }
            
@@ -150,7 +150,7 @@ public struct NetClientCombine: Clienting {
       return self.publisher.dataTaskPublisher(for: request)
          .tryMap { data, response -> Data in
            guard let httpResponse = response as? HTTPURLResponse,
-             httpResponse.statusCode == 200 else {
+             200...299 ~= httpResponse.statusCode else {
                throw NetClientError.invalidServerResponse
            }
            
